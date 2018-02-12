@@ -126,8 +126,11 @@ function onMIDIEvent(e){
       console.log("val1 = " + note_val_1);
       console.log("val2 = " + note_val_2);
       console.log("val3 = " + note_val_3);
-
-      synth.triggerAttackRelease(tone_num[e.data[1]], '16n')    
+      if(e.data[2] == 0){
+        synth.triggerRelease();
+      }else{
+        synth.triggerAttack(tone_num[e.data[1]]);
+      }
     }
   }
 }
@@ -138,8 +141,8 @@ var synth = new Tone.Synth({
   },"envelope" : {
     "attack" : 0.01,
     "decay" : 0.2,
-    "sustain" : 0.2,
-    "release" : 0.2,
+    "sustain" : 0.,
+    "release" : 0.05,
   }
 }).toMaster()
 

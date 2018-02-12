@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>onom-stage</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="js/jquery.knob.min.js"></script>
+
+
+    <style>
+      .slider{
+        margin:auto;
+      }
+      .active .ui-slider-handle{
+        background: #f53;
+      }
+
+      /* ラベルのスタイル　*/
+      .step-line label {
+        padding-left:		20px;			/* ラベルの位置 */
+        font-size:		32px;
+        /* line-height:		32px; */
+        display:		inline-block;
+        cursor:			pointer;
+        position:		relative;
+      }
+
+      /* ボックスのスタイル */
+      .step-line label:before {
+        content:		'';
+        width:			20px;			/* ボックスの横幅 */
+        height:			32px;			/* ボックスの縦幅 */
+        display:		inline-block;
+        position:		absolute;
+        left:			0;
+        background-color:	#ccc;
+        border-radius:		2px;
+      }
+      /* 元のチェックボックスを表示しない */
+      .step-line input[type=checkbox] {
+        display:		none;
+      }
+      /* チェックした時のスタイル */
+      .step-line input[type=checkbox]:checked + label:before {
+        /* content:		'\2713'; */
+        /* font-size:		34px; */
+        /* color:			#fff; */
+        background-color:	#49f;			/* チェックした時の色 */
+      }
+    </style>
+    <!-- <script src="script.js" defer></script> -->
+    
+
+  </head>
+  <body>  
+    <select id="select-midi-output-device"></select>
+    <select id="select-midi-output-ch"></select>
+
+    <table style="width:400px">
+      <tr class="slider-line">
+        <td><div class="slider" id="slider1"></div></td>
+        <td><div class="slider" id="slider2"></div></td>
+        <td><div class="slider" id="slider3"></div></td>
+        <td><div class="slider" id="slider4"></div></td>
+        <td><div class="slider" id="slider5"></div></td>
+        <td><div class="slider" id="slider6"></div></td>
+        <td><div class="slider" id="slider7"></div></td>
+        <td><div class="slider" id="slider8"></div></td>
+        <td><div class="slider" id="slider9"></div></td>
+        <td><div class="slider" id="slider10"></div></td>
+        <td><div class="slider" id="slider11"></div></td>
+        <td><div class="slider" id="slider12"></div></td>
+        <td><div class="slider" id="slider13"></div></td>
+        <td><div class="slider" id="slider14"></div></td>
+        <td><div class="slider" id="slider15"></div></td>
+        <td><div class="slider" id="slider16"></div></td>
+      </tr>
+      <tr class="step-line">
+        <td><input type="checkbox" id="step1" name="step1" checked="checked"/><label for="step1"></label></td>
+        <td><input type="checkbox" id="step2" name="step2" checked="checked"/><label for="step2"></label></td>
+        <td><input type="checkbox" id="step3" name="step3" checked="checked"/><label for="step3"></label></td>
+        <td><input type="checkbox" id="step4" name="step4" checked="checked"/><label for="step4"></label></td>
+        <td><input type="checkbox" id="step5" name="step5" checked="checked"/><label for="step5"></label></td>
+        <td><input type="checkbox" id="step6" name="step6" checked="checked"/><label for="step6"></label></td>
+        <td><input type="checkbox" id="step7" name="step7" checked="checked"/><label for="step7"></label></td>
+        <td><input type="checkbox" id="step8" name="step8" checked="checked"/><label for="step8"></label></td>
+        <td><input type="checkbox" id="step9" name="step9" checked="checked"/><label for="step9"></label></td>
+        <td><input type="checkbox" id="step10" name="step10" checked="checked"/><label for="step10"></label></td>
+        <td><input type="checkbox" id="step11" name="step11" checked="checked"/><label for="step11"></label></td>
+        <td><input type="checkbox" id="step12" name="step12" checked="checked"/><label for="step12"></label></td>
+        <td><input type="checkbox" id="step13" name="step13" checked="checked"/><label for="step13"></label></td>
+        <td><input type="checkbox" id="step14" name="step14" checked="checked"/><label for="step14"></label></td>
+        <td><input type="checkbox" id="step15" name="step15" checked="checked"/><label for="step15"></label></td>
+        <td><input type="checkbox" id="step16" name="step16" checked="checked"/><label for="step16"></label></td>
+        
+        
+        </td>
+      </tr>
+    </table>
+  </body>
+
+
+
+
+
+  <script>
+    navigator.requestMIDIAccess().then(onMIDISuccess,onMIDIFailure);
+    var midi = null;
+    var inputs = [];
+    var outputs = [];
+    var output = null;
+    var chs = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+
+    var seq_list = [60,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48];
+    var ch = 1;
+
+    function onMIDISuccess(m){
+      midi = m;
+      var it = midi.inputs.values();
+      for(var o = it.next(); !o.done; o = it.next()){
+        inputs.push(o.value);
+      }
+      var ot = midi.outputs.values();
+      for(var o = ot.next(); !o.done; o = ot.next()){
+        outputs.push(o.value);
+      }
+      
+      output = outputs[0];
+      outputs.forEach(function(element, index) {
+        var option = document.createElement('option');
+        option.appendChild(document.createTextNode(element.name));
+        option.setAttribute('value', index);
+        document.getElementById('select-midi-output-device').appendChild(option);
+      });
+      document.getElementById('select-midi-output-device').onchange = function() {
+        output = outputs[this.value];
+      };
+      
+      for(var cnt=0;cnt < inputs.length;cnt++){
+        inputs[cnt].onmidimessage = onMIDIEvent;
+      }
+    }
+
+    chs.forEach(function(value, index) {
+      var option = document.createElement('option');
+      option.appendChild(document.createTextNode(value));
+      option.setAttribute('value', index);
+      document.getElementById('select-midi-output-ch').appendChild(option);
+    });
+    document.getElementById('select-midi-output-ch').onchange = function() {
+      ch = chs[this.value];
+    };
+    function onMIDIEvent(e){}
+    function onMIDIFailure(){
+      console.log("munen!");
+    };
+
+
+
+    function sendMIDINoteOn(note){
+      if(outputs.length > 0){
+        
+        outputs[0].send([0x90,note,0x7f]);
+      }
+    }
+
+
+    document.querySelector('#main .posts h1');
+    sendMIDINoteOn(60);
+
+
+
+
+
+    var step = 0;
+    var length = 15;
+
+    var oldStepTime = 0;
+
+    step ++;
+
+
+    var startTime = new Date().getTime();　//描画開始時刻を取得
+    (function loop(){
+        window.requestAnimationFrame(loop);
+        var currentTime = new Date().getTime();　//経過時刻を取得
+        var status = Math.abs(startTime - currentTime) // 描画開始時刻から経過時刻を引く
+        console.log(status);
+
+        
+
+        // if(status - oldStepTime > 80){ 
+        //   outputs[0].send([0x90,0x00,0x00]);
+        // }
+
+
+        if(status - oldStepTime > 80){
+          $('.slider').removeClass('active');
+          $('#slider' + (step+1)).addClass('active');
+
+
+          if($("[name=step" + (step+1)).prop("checked")){
+            sendMIDINoteOn(seq_list[step]);
+          }
+
+          step ++;
+          if(step >= 16){
+            step = 0;
+          }
+          oldStepTime = status;
+        }
+
+        
+        
+    })();
+
+
+
+
+        // console.log(seq_list);
+
+
+
+
+    // SLIDER
+    $( ".slider" ).slider({
+      orientation: "vertical",
+      min:48,
+      max: 84,
+      range: "min",
+    });
+    $( "#slider1" ).slider({
+      slide: function( event, ui ) {
+        seq_list[0] = ui.value;
+      }
+    });
+    $( "#slider2" ).slider({
+      slide: function( event, ui ) {
+        seq_list[1] = ui.value;        
+      }
+    });
+    $( "#slider3" ).slider({
+      slide: function( event, ui ) {
+        seq_list[2] = ui.value;        
+      }
+    });
+    $( "#slider4" ).slider({
+      slide: function( event, ui ) {
+        seq_list[3] = ui.value;        
+      }
+    });
+    $( "#slider5" ).slider({
+      slide: function( event, ui ) {
+        seq_list[4] = ui.value;        
+      }
+    });
+    $( "#slider6" ).slider({
+      slide: function( event, ui ) {
+        seq_list[5] = ui.value;        
+      }
+    });
+    $( "#slider7" ).slider({
+      slide: function( event, ui ) {
+        seq_list[6] = ui.value;        
+      }
+    });
+    $( "#slider8" ).slider({
+      slide: function( event, ui ) {
+        seq_list[7] = ui.value;        
+      }
+    });
+    $( "#slider9" ).slider({
+      slide: function( event, ui ) {
+        seq_list[8] = ui.value;
+      }
+    });
+    $( "#slider10" ).slider({
+      slide: function( event, ui ) {
+        seq_list[9] = ui.value;        
+      }
+    });
+    $( "#slider11" ).slider({
+      slide: function( event, ui ) {
+        seq_list[10] = ui.value;        
+      }
+    });
+    $( "#slider12" ).slider({
+      slide: function( event, ui ) {
+        seq_list[11] = ui.value;        
+      }
+    });
+    $( "#slider13" ).slider({
+      slide: function( event, ui ) {
+        seq_list[12] = ui.value;        
+      }
+    });
+    $( "#slider14" ).slider({
+      slide: function( event, ui ) {
+        seq_list[13] = ui.value;        
+      }
+    });
+    $( "#slider15" ).slider({
+      slide: function( event, ui ) {
+        seq_list[14] = ui.value;        
+      }
+    });
+    $( "#slider16" ).slider({
+      slide: function( event, ui ) {
+        seq_list[15] = ui.value;        
+      }
+    });
+
+
+
+  </script>
+
+
+
+</html>
