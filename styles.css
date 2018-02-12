@@ -1,0 +1,28 @@
+* {
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  vertical-align:top;
+}
+
+#select-midi-output-ch,#select-midi-output-device{
+  font-size: 10px;
+  color: #999;
+  border-radius: 0;
+  border: none;
+  height: 30px;
+}
+#select-midi-output-ch:hover,#select-midi-output-device:hover{
+  color:#666;
+}
+
+
+*{
+  margin:0;
+  box-sizing:border-box;}
+body{
+  position:absolute;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
