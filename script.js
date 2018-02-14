@@ -101,17 +101,17 @@ function make_note_val(data){
     note_val_3 = 0;
   }else{
     if(midi_note <= 59){
-      note_val_1 = (midi_note-48)/11;
+      note_val_1 = (midi_note-47)/12;
       note_val_2 = 0;
       note_val_3 = 0;
     }else if(midi_note <= 71){
       note_val_1 = 0;
-      note_val_2 = (midi_note-60)/11;
+      note_val_2 = (midi_note-59)/12;
       note_val_3 = 0;
     }else{
       note_val_1 = 0;
       note_val_2 = 0;
-      note_val_3 = (midi_note-72)/11;
+      note_val_3 = (midi_note-71)/12;
     }
   }
 }
@@ -119,7 +119,7 @@ function make_note_val(data){
 function onMIDIEvent(e){
   if(e.data[0] != 248){ //248 is clock message
     console.log(e.data);
-    if(e.data[0] == 144){
+    // if(e.data[0] == 144){
       make_note_val(e.data);
 
 
@@ -131,7 +131,7 @@ function onMIDIEvent(e){
       }else{
         synth.triggerAttack(tone_num[e.data[1]]);
       }
-    }
+    // }
   }
 }
 
@@ -141,7 +141,7 @@ var synth = new Tone.Synth({
   },"envelope" : {
     "attack" : 0.01,
     "decay" : 0.2,
-    "sustain" : 0.,
+    "sustain" : 0.1,
     "release" : 0.05,
   }
 }).toMaster()
@@ -162,7 +162,7 @@ var frame = 0; //更新用
     canvas:document.getElementById('myCanvas'),
     antialias: true
   });
-  renderer.setClearColor(0xff0000, 1.0); 
+  renderer.setClearColor(0x000000, 1.0); 
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 // Scene ============================================================
@@ -184,59 +184,46 @@ var frame = 0; //更新用
   // 部屋全体を照らすライト
   var ambient = new THREE.AmbientLight(0xaaaaaa);
   scene.add(ambient);
-//  MIKAN================================================================================
-  var HetaMaterial = new THREE.MeshPhongMaterial({color: 0x337700});
-  var HetaGeometry = new THREE.SphereGeometry(1,8,4);
-  var HetaObject = new THREE.Mesh( HetaGeometry, HetaMaterial);
-  HetaObject.scale.set(0.3,0.1,0.3);
-  HetaObject.position.set(0,14.2,0);
-  group.add(HetaObject); 
 
-  var mikanMaterial = new THREE.MeshPhongMaterial({color: 0xff7700});
-  var mikanGeometry = new THREE.SphereGeometry(4,32,16);
-  var mikanObject = new THREE.Mesh( mikanGeometry, mikanMaterial);
-  mikanObject.scale.set(1,0.8,1);
-  mikanObject.position.set(0,11,0);
-  group.add(mikanObject); 
-
-//  MOCHI================================================================================
-  var mochi1Material = new THREE.MeshPhongMaterial({color: 0xffffff});
-  var mochi1Geometry = new THREE.SphereGeometry(4,32,16);
-  var mochi1Object = new THREE.Mesh( mochi1Geometry, mochi1Material);
-  mochi1Object.scale.set(2,0.8,2);
-  mochi1Object.position.set(0,5,0);
-  group.add(mochi1Object);
-
-  var mochi2Material = new THREE.MeshPhongMaterial({color: 0xffffff});
-  var mochi2Geometry = new THREE.SphereGeometry(4,32,16);
-  var mochi2Object = new THREE.Mesh( mochi2Geometry, mochi2Material);
-  mochi2Object.scale.set(2.5,0.8,2.5);
-  mochi2Object.position.set(0,0,0);
-  group.add(mochi2Object); 
-
-//  BASE================================================================================
-  var base1Material = new THREE.MeshPhongMaterial({color: 0xbb8833});
-  var base1Geometry = new THREE.BoxGeometry(20,3,20);
-  var base1Object = new THREE.Mesh( base1Geometry, base1Material);
-  base1Object.position.set(0,-3,0);
-  group.add(base1Object);
-
-  var base1Material = new THREE.MeshPhongMaterial({color: 0xbb8833});
-  var base1Geometry = new THREE.BoxGeometry(15,10,15);
-  var base1Object = new THREE.Mesh( base1Geometry, base1Material);
-  base1Object.position.set(0,-9,0);
-  group.add(base1Object);
+// CUBE=================================================================
+  var baseMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+  var baseGeometry = new THREE.BoxGeometry(3,3,3);
+  var baseObject = new THREE.Mesh( baseGeometry, baseMaterial);
 
 
-//  BASE================================================================================
-  var base1Material = new THREE.MeshPhongMaterial({color: 0xbb8833});
-  var base1Geometry = new THREE.BoxGeometry(20,3,20);
-  var base1Object = new THREE.Mesh( base1Geometry, base1Material);
-  base1Object.position.set(0,-3,0);
-  group.add(base1Object);
+  // baseObject.position.set(0,-3,0);
+  group.add(baseObject);
 
 
-  var roomMaterial = new THREE.MeshBasicMaterial({color: 0xffff00,
+
+
+// Ring ==========================================
+  var ringGeometry;
+  var ringMaterial;
+  var ringCount;
+  var ring = [];
+  updateRing();
+
+  function updateRing(){
+    ringGeometry = new THREE.TorusBufferGeometry( 10, 1, 4, 8 );
+    ringMaterial = new THREE.MeshPhongMaterial( {color: "#00aaff", flatShading:true});
+    ringMaterial.needsUpdate = true;
+    for(var i = 0; i < ringCount; i++) {
+      scene.remove(ring[i]);
+    }
+    ringCount = 10;　// particleの数を更新
+    for(var i = 0; i < ringCount; i++) {
+      ring[i] = new THREE.Mesh( ringGeometry, ringMaterial );
+      ring[i].rotation.z = 0.1 * Math.PI;
+      ring[i].position.z = i * 10 - 50;
+      scene.add(ring[i]);
+    }
+  }
+
+
+
+//  ROOM================================================================================
+  var roomMaterial = new THREE.MeshBasicMaterial({color: 0xffffff,
       map: new THREE.TextureLoader().load( "https://png.icons8.com/happy/ios7/512/ffffff" ),
       transparent: true,
       side: THREE.DoubleSide
@@ -244,8 +231,8 @@ var frame = 0; //更新用
   var roomGeometry = new THREE.BoxGeometry(300, 300,300);
   var roomObject = new THREE.Mesh(roomGeometry,roomMaterial);
   roomObject.position.set(0,0,0);
+  
   group.add(roomObject);
-
 
   function roomAnim(){
     roomObject.rotation.x += 0.01;
@@ -253,17 +240,10 @@ var frame = 0; //更新用
     roomObject.rotation.z += 0.031;
   }
 
-
-
-
-  
-
-
-
 // flower ============================================================================
   // flower
   var flowerGeometry = new THREE.Geometry();
-  var flowerNum = 50;
+  var flowerNum = 500;
   var flowerS = [];
   // setup
   for (let i = 0; i < flowerNum; i++) {
@@ -278,7 +258,7 @@ var frame = 0; //更新用
   var flowerMaterial = new THREE.PointsMaterial({
     // color : 0xff3333,
     // map: new THREE.TextureLoader().load( "https://png.icons8.com/spa-flower-filled/ios7/64/ffffff"),
-    // size: 10,
+    size: 0.4,
     // transparent: true,
     // depthTest : false,
     // blending : THREE.AdditiveBlending
@@ -301,23 +281,37 @@ var frame = 0; //更新用
     flowerGeometry.verticesNeedUpdate = true;
   };
 
-function groupAnim(){
-  var size1 = 0.2;
-  var size2 = 0.2;
-  var size3 = 0.2;
-  size1 = note_val_1 + 0.2;
-  size2 = note_val_2 + 0.2;
-  size3 = note_val_3 + 0.2;
+  var noteVal1 = 0;
+  var noteVal2 = 0;
+  var noteVal3 = 0;
 
-  group.scale.set(size1, size2, size3);
+// ============================================================================
+// noteCTRL ===================================================================
+// ============================================================================
+
+  function noteCtrl(){
+    
+    noteVal1 = note_val_1;
+    noteVal2 = note_val_2;
+    noteVal3 = note_val_3;
 
 
+    flowerMaterial.size = noteVal1 *5;
+
+    roomObject.scale.set(0.001+ noteVal2,0.001+ noteVal2,0.001+ noteVal2);
+    roomObject.rotation.set(noteVal2,noteVal2,noteVal2 *2);
 
 
-  // var rot2 = 0;
-  // rot2 = note_val_3 * Math.PI + Math.PI;
-  // group.rotation.set(0, 0, rot2);
-}
+    baseObject.scale.set(1,1,1+noteVal3*20);
+    baseObject.rotation.set(noteVal3,0,noteVal3 *2);
+
+
+    for(var i = 0; i < ringCount; i++) {
+      ring[i].position.z = i * 10 * noteVal1 - 5 * 10 * noteVal1;
+
+    }
+    
+  }
 
 
 
@@ -328,7 +322,7 @@ scene.add(group);
     frame++;
     flowerAnim();
     roomAnim();
-    groupAnim();
+    noteCtrl();
     controls.update();
     requestAnimationFrame(update);
     renderer.render(scene, camera);
